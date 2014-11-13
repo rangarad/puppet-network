@@ -86,6 +86,7 @@ define network::interface (
   $interface       = $name,
 
   $enable_dhcp     = false,
+  $enable_defroute = false,
 
   $ipaddress       = '',
   $netmask         = undef,
@@ -177,6 +178,7 @@ define network::interface (
   $srcaddr         = undef,
   $peerdns         = '',
   $onboot          = '',
+  $defroute        = undef,
   $dns1            = undef,
   $dns2            = undef,
   $master          = undef,
@@ -193,6 +195,7 @@ define network::interface (
 
   validate_bool($auto)
   validate_bool($enable)
+  validate_bool($enable_defroute)
 
   validate_array($up)
   validate_array($pre_up)
@@ -248,6 +251,14 @@ define network::interface (
       false  => 'no',
     },
     default => $onboot,
+  }
+  $manage_defroute = $defroute ? {
+    true    => 'yes',
+    false   => 'no',
+    default => $enable_defroute? {
+      true => '',
+      false => $defroute,
+    }
   }
   $manage_startmode = $startmode ? {
     ''     => $enable ? {
